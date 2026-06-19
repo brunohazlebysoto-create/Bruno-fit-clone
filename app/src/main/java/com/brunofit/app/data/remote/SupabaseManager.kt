@@ -33,7 +33,11 @@ object SupabaseManager {
             val body = JSONObject().apply { put("email", email); put("password", password) }.toString()
             conn.outputStream.use { it.write(body.toByteArray(Charsets.UTF_8)) }
             val code = conn.responseCode
-            val text = (if (code < 400) conn.inputStream else conn.errorStream).bufferedReader().readText()
+            val text = if (code < 400) {
+                conn.inputStream.bufferedReader().readText()
+            } else {
+                (conn.errorStream ?: conn.inputStream)?.bufferedReader()?.readText() ?: ""
+            }
             if (code != 200) error("Error $code: ${JSONObject(text).optString("error_description", text)}")
             val json = JSONObject(text)
             _accessToken = json.getString("access_token")

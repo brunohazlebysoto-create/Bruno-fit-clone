@@ -79,6 +79,8 @@ class AuthViewModel(private val prefs: AppPreferences) : ViewModel() {
                     prefs.saveString(AppPreferences.USER_EMAIL, _state.value.email.trim())
                     prefs.saveBoolean(AppPreferences.IS_LOGGED_IN, true)
                     _state.update { it.copy(isLoggedIn = true, isLoading = false, userEmail = _state.value.email.trim()) }
+                } else {
+                    _state.update { it.copy(isLoading = false, error = "No se pudo obtener la sesión. Intentá de nuevo.") }
                 }
             } catch (e: Exception) {
                 _state.update { it.copy(isLoading = false, error = e.message ?: "Error al iniciar sesión") }
